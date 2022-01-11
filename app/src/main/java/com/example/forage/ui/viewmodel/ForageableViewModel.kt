@@ -1,5 +1,6 @@
 package com.example.forage.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.forage.data.ForageableDao
 import com.example.forage.model.Forageable
@@ -11,13 +12,11 @@ import kotlinx.coroutines.launch
  * and [AddForageableFragment] and allow for interaction the the [ForageableDao]
  */
 
-class ForageableViewModel(forageableDao: ForageableDao): ViewModel() {
+class ForageableViewModel(private val forageableDao: ForageableDao): ViewModel() {
 
-    // TODO: create a property to set to a list of all forageables from the DAO
-    //var forageables: LiveData<List<Forageable>> = forageableDao.getForageables().asLiveData()
+    var forageables: LiveData<List<Forageable>> = forageableDao.getForageables().asLiveData()
 
-    // TODO : create method that takes id: Long as a parameter and retrieve a Forageable from the
-    //  database by id via the DAO.
+    fun getForageable(id: Long) : LiveData<Forageable> = forageableDao.getForageable(id).asLiveData()
 
     fun addForageable(
         name: String,
@@ -32,7 +31,9 @@ class ForageableViewModel(forageableDao: ForageableDao): ViewModel() {
             notes = notes
         )
 
-    // TODO: launch a coroutine and call the DAO method to add a Forageable to the database within it
+        viewModelScope.launch {
+            forageableDao.insert(forageable)
+        }
 
     }
 
@@ -51,13 +52,23 @@ class ForageableViewModel(forageableDao: ForageableDao): ViewModel() {
             notes = notes
         )
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO: call the DAO method to update a forageable to the database here
+            try {
+                forageableDao.update(forageable)
+            }
+            catch (e: Exception){
+                Log.e("ViewModel.update", e.message.toString())
+            }
         }
     }
 
     fun deleteForageable(forageable: Forageable) {
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO: call the DAO method to delete a forageable to the database here
+            try {
+                forageableDao.delete(forageable)
+            }
+            catch (e: Exception){
+                Log.e("ViewModel.delete", e.message.toString())
+            }
         }
     }
 
@@ -66,5 +77,12 @@ class ForageableViewModel(forageableDao: ForageableDao): ViewModel() {
     }
 }
 
-// TODO: create a view model factory that takes a ForageableDao as a property and
-//  creates a ForageableViewModel
+class ForageableViewModelFactory(private val forageableDao: ForageableDao): ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if(modelClass.isAssignableFrom(ForageableViewModel::class.java)) {
+            return ForageableViewModel(forageableDao) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel")
+    }
+
+}
