@@ -1,8 +1,6 @@
 package com.example.forage.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.forage.data.ForageableDao
 import com.example.forage.model.Forageable
 import kotlinx.coroutines.Dispatchers
@@ -13,12 +11,10 @@ import kotlinx.coroutines.launch
  * and [AddForageableFragment] and allow for interaction the the [ForageableDao]
  */
 
-// TODO: pass a ForageableDao value as a parameter to the view model constructor
-class ForageableViewModel(
-    // Pass dao here
-): ViewModel() {
+class ForageableViewModel(forageableDao: ForageableDao): ViewModel() {
 
     // TODO: create a property to set to a list of all forageables from the DAO
+    //var forageables: LiveData<List<Forageable>> = forageableDao.getForageables().asLiveData()
 
     // TODO : create method that takes id: Long as a parameter and retrieve a Forageable from the
     //  database by id via the DAO.
